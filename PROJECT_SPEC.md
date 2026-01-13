@@ -1,8 +1,8 @@
 # Personal Finance Tracker — Project Spec
 
 ## Current status (update every phase)
-- Current phase: Phase 0 (Setup)
-- Last completed phase: —
+- Current phase: Phase 0 (Setup) - DONE
+- Last completed phase: Phase 0 (Setup)
 - Next up: Phase 1 (Schema + migrations)
 - Build targets: iOS + Android (Capacitor)
 - Local DB: SQLite (@capacitor-community/sqlite) + Drizzle
@@ -38,18 +38,31 @@ Offline-first mobile app (iOS + Android) for ultra-fast daily expense tracking.
 ## Phase plan
 
 ### Phase 0 — Capacitor + SQLite Setup
-Status: NOT STARTED
+Status: DONE
 Acceptance criteria:
-- Capacitor configured for iOS + Android
-- SQLite plugin installed and a DB init function exists (on-device)
-- App runs and can open DB without crashing
-- Documented commands to run + build
+- ✅ Capacitor configured for iOS + Android
+- ✅ SQLite plugin installed and a DB init function exists (on-device)
+- ✅ App runs and can open DB without crashing
+- ✅ Documented commands to run + build
 
 Implementation notes:
-- (fill in)
+- Installed @capacitor/core, @capacitor/cli, @capacitor/ios, @capacitor/android, @capacitor-community/sqlite
+- Switched from adapter-node to adapter-static (required for Capacitor)
+- Initialized Capacitor with app ID "com.shmeckles.fintrack" and web directory "build"
+- Added iOS and Android native platforms
+- Created src/lib/db/init.ts with idempotent database initialization
+- Database name: "fintrack", enables foreign keys, handles connection reuse
+- Added client-side initialization in src/routes/+layout.svelte using onMount
+- Initialization runs only on native platforms (not SSR or web browser)
 
 Files changed:
-- (fill in)
+- package.json (added Capacitor dependencies)
+- svelte.config.js (switched to adapter-static)
+- capacitor.config.ts (created, Capacitor configuration)
+- src/lib/db/init.ts (created, database initialization)
+- src/routes/+layout.svelte (added DB init on mount)
+- ios/ (created, native iOS platform)
+- android/ (created, native Android platform)
 
 ---
 
@@ -130,16 +143,24 @@ Files changed:
 ---
 
 ## Changelog (append-only)
-### YYYY-MM-DD — Phase X — Title
+### 2026-01-13 — Phase 0 — Capacitor + SQLite Setup
 - Summary:
-  - …
+  - Installed and configured Capacitor for iOS and Android
+  - Added @capacitor-community/sqlite for on-device database
+  - Created idempotent database initialization in src/lib/db/init.ts
+  - Integrated DB init with SvelteKit lifecycle (client-side only)
 - Key decisions:
-  - …
+  - Switched to adapter-static (required for Capacitor static file serving)
+  - Database name: "fintrack"
+  - Foreign keys enabled by default
+  - Initialization skips SSR and web platforms (native-only)
 - Notes:
-  - …
+  - better-sqlite3 remains in dependencies for potential server-side tooling
+  - Platforms (ios/, android/) are gitignored per Capacitor best practices
+  - Need to run `pnpm build && npx cap sync` before opening in Xcode/Android Studio
 
 ## Known issues / blockers (keep updated)
 - (none)
 
 ## Next steps (keep updated)
-- Start Phase 0: Capacitor + on-device SQLite init
+- Start Phase 1: Create Drizzle schema and migrations for all tables
