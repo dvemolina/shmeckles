@@ -1,23 +1,34 @@
-You are able to use the Svelte MCP server, where you have access to comprehensive Svelte 5 and SvelteKit documentation. Here's how to use the available tools effectively:
+# Claude Code Operating Rules
 
-## Available MCP Tools:
+## Read-first
+Before any coding or edits:
+1) Read WORKFLOW.md, PROJECT_SPEC.md, DECISIONS.md, and this file.
+2) Confirm the requested phase and do ONLY that phase.
 
-### 1. list-sections
+## Non-negotiables (must follow)
+- Use SvelteKit + Capacitor.
+- Use SQLite via @capacitor-community/sqlite for on-device DB.
+- Use Drizzle ORM.
+- UUID string IDs everywhere.
+- Money stored as integer minor units `amount_minor` only (no floats).
+- Every table must include created_at, updated_at, deleted_at (nullable) epoch ms.
+- UI must not call SQL directly; use repo/service layers.
 
-Use this FIRST to discover all available documentation sections. Returns a structured list with titles, use_cases, and paths.
-When asked about Svelte or SvelteKit topics, ALWAYS use this tool at the start of the chat to find relevant sections.
+## Phase workflow (mandatory)
+- Work in phases: 0,1,2,3,3.5,4.
+- BEFORE coding a phase:
+  - Update PROJECT_SPEC.md: set that phase to IN PROGRESS.
+  - Print acceptance criteria checklist.
+- AFTER finishing a phase:
+  - Update PROJECT_SPEC.md: set phase to DONE.
+  - Fill in Implementation notes, Files changed, Commands (if new).
+  - Append a Changelog entry at bottom (date + phase + summary).
+  - Print: file tree changes and exact commands to run.
+- Do NOT proceed to next phase until instructed.
 
-### 2. get-documentation
-
-Retrieves full documentation content for specific sections. Accepts single or multiple sections.
-After calling the list-sections tool, you MUST analyze the returned documentation sections (especially the use_cases field) and then use the get-documentation tool to fetch ALL documentation sections that are relevant for the user's task.
-
-### 3. svelte-autofixer
-
-Analyzes Svelte code and returns issues and suggestions.
-You MUST use this tool whenever writing Svelte code before sending it to the user. Keep calling it until no issues or suggestions are returned.
-
-### 4. playground-link
-
-Generates a Svelte Playground link with the provided code.
-After completing the code, ask the user if they want a playground link. Only call this tool after user confirmation and NEVER if code was written to files in their project.
+## Output format
+At the end of each phase response:
+- ✅ Acceptance criteria met: …
+- 📁 Files changed: …
+- ▶️ Commands to run: …
+- ⚠️ Known issues: …
