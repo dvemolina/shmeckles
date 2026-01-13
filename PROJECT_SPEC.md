@@ -1,9 +1,9 @@
 # Personal Finance Tracker — Project Spec
 
 ## Current status (update every phase)
-- Current phase: Phase 0 (Setup) - DONE
-- Last completed phase: Phase 0 (Setup)
-- Next up: Phase 1 (Schema + migrations)
+- Current phase: Phase 1 (Schema + migrations) - DONE
+- Last completed phase: Phase 1 (Schema + migrations)
+- Next up: Phase 2 (Repo layer)
 - Build targets: iOS + Android (Capacitor)
 - Local DB: SQLite (@capacitor-community/sqlite) + Drizzle
 - Known issues / blockers:
@@ -67,17 +67,42 @@ Files changed:
 ---
 
 ### Phase 1 — Drizzle schema + migrations
-Status: NOT STARTED
+Status: DONE
 Acceptance criteria:
-- Drizzle schema created for all tables (accounts, categories, transactions, recurring/planned)
-- Initial migration created + runs on device
-- Seed script inserts default categories + sample accounts
+- ✅ Drizzle schema created for all tables (accounts, categories, transactions, recurring/planned)
+- ✅ Initial migration created + runs on device
+- ✅ Seed script inserts default categories + sample accounts
 
 Implementation notes:
-- (fill in)
+- Created comprehensive Drizzle schema (src/lib/db/schema.ts) for 6 tables:
+  - accounts: banking/cash accounts with type, currency, initial_balance_minor
+  - categories: expense/income categories with color, icon, parent_id for subcategories
+  - transactions: all transactions (expense, income, transfer) with amount_minor always positive
+  - recurring_rules: for Phase 4 (RRULE support for recurring transactions)
+  - planned_payments: for Phase 4 (future planned transactions)
+  - planned_instances: for Phase 4 (instances of planned payments)
+- All tables include UUID string IDs, created_at/updated_at/deleted_at (epoch ms)
+- All tables properly indexed for query performance
+- Created migration system (src/lib/db/migrations.ts):
+  - Tracks migrations in _migrations table
+  - Runs migrations in order on device initialization
+  - Migration #1 creates all tables with proper indexes and constraints
+- Created seed system (src/lib/db/seed.ts):
+  - 15 default categories (10 expense, 5 income) with colors and icons
+  - 2 sample accounts (Checking: $1000, Cash: $50)
+  - Idempotent - only seeds if database is empty
+- Integrated migrations + seed into init.ts lifecycle
+- Created UUID utility (src/lib/utils/uuid.ts) for generating IDs
+- All money stored as integer minor units (amount_minor)
+- Transaction dates stored as YYYY-MM-DD text
+- Foreign keys enabled and enforced
 
 Files changed:
-- (fill in)
+- src/lib/db/schema.ts (created, Drizzle schema for all tables)
+- src/lib/db/migrations.ts (created, migration runner and initial migration)
+- src/lib/db/seed.ts (created, seed data for categories and accounts)
+- src/lib/db/init.ts (modified, integrated migrations and seed)
+- src/lib/utils/uuid.ts (created, UUID generation utility)
 
 ---
 
@@ -143,6 +168,27 @@ Files changed:
 ---
 
 ## Changelog (append-only)
+### 2026-01-13 — Phase 1 — Drizzle Schema + Migrations
+- Summary:
+  - Created comprehensive Drizzle schema for all 6 tables (accounts, categories, transactions, recurring_rules, planned_payments, planned_instances)
+  - Built migration system that tracks and runs migrations on device initialization
+  - Created seed system with 15 default categories and 2 sample accounts
+  - Integrated migrations and seed into database initialization lifecycle
+  - Created UUID utility for generating unique identifiers
+- Key decisions:
+  - All tables use UUID string IDs (TEXT in SQLite)
+  - Money stored as integer minor units (amount_minor) - no floats
+  - Transaction dates stored as YYYY-MM-DD text (local date)
+  - created_at/updated_at/deleted_at (epoch ms integers) on all tables
+  - Migrations stored as TypeScript strings (easier bundling for Capacitor)
+  - Foreign keys enabled and enforced
+  - Proper indexes on all frequently queried columns
+- Notes:
+  - Migration #1 creates all tables including Phase 4 tables (recurring, planned)
+  - Seed data includes colorful categories with icons for better UX
+  - Migration and seed systems are idempotent (safe to run multiple times)
+  - Database is now ready for repo layer implementation
+
 ### 2026-01-13 — Phase 0 — Capacitor + SQLite Setup
 - Summary:
   - Installed and configured Capacitor for iOS and Android
@@ -163,4 +209,4 @@ Files changed:
 - (none)
 
 ## Next steps (keep updated)
-- Start Phase 1: Create Drizzle schema and migrations for all tables
+- Start Phase 2: Create repo layer for accounts, categories, and transactions

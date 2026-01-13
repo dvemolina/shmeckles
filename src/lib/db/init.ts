@@ -5,6 +5,8 @@
 
 import { Capacitor } from '@capacitor/core';
 import { CapacitorSQLite, SQLiteConnection, SQLiteDBConnection } from '@capacitor-community/sqlite';
+import { runMigrations } from './migrations';
+import { seedDatabase } from './seed';
 
 const DB_NAME = 'fintrack';
 let dbConnection: SQLiteDBConnection | null = null;
@@ -70,6 +72,14 @@ export async function initDB(): Promise<void> {
 		// Enable foreign keys
 		await dbConnection.execute('PRAGMA foreign_keys = ON;');
 		console.log('[DB] Foreign keys enabled');
+
+		// Run migrations
+		await runMigrations(dbConnection);
+
+		// Seed database with initial data
+		await seedDatabase(dbConnection);
+
+		console.log('[DB] ✅ Database ready');
 
 	} catch (error) {
 		console.error('[DB] Initialization failed:', error);
